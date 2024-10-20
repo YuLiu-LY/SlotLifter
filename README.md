@@ -29,7 +29,7 @@ conda activate slotlifter
 conda install pytorch==2.1.0 torchvision==0.16.0 torchaudio==2.1.0 pytorch-cuda=12.1 -c pytorch -c nvidia
 pip install -r requirements.txt
 ```
-In our experiments, we used NVIDIA CUDA 11.3 on Ubuntu 20.04. Similar CUDA version should also be acceptable with corresponding version control for ``torch`` and ``torchvision``.
+In our experiments, we used NVIDIA CUDA 11.3 on Ubuntu 22.04. Similar CUDA version should also be acceptable with corresponding version control for ``torch`` and ``torchvision``.
 
 ## Dataset
 ### 1. ShapeStacks, ObjectsRoom, CLEVRTex, Flowers
