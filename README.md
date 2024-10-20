@@ -36,12 +36,13 @@ In our experiments, we used NVIDIA CUDA 12.1 on Ubuntu 22.04. Similar CUDA versi
 CLEVR567, Room-Chair, and Room-Diverse datasets are provided by [uORF](https://github.com/KovenYu/uORF). 
 
 ### 2. Room-Texture, Kitchen-Matte, Kitchen-Shiny
-Room-Texture, Kitchen-Matte, and Kitchen-Shiny datasets are provided by [uOCF]([https://github.com/KovenYu/uORF](https://github.com/Red-Fairy/uOCF-code). 
+Room-Texture, Kitchen-Matte, and Kitchen-Shiny datasets are provided by [uOCF](https://github.com/Red-Fairy/uOCF-code). 
 
 ### 3.ScanNet
-Coming soon.
+We provide our training data [here](). Following previous works. we use the test data provided by [NerfingMVS](https://github.com/weiyithu/NerfingMVS).
+
 ### 4.DTU
-Coming soon.
+Download the DTU dataset [here](https://roboimagedata.compute.dtu.dk/?page_id=36).
 
 ## Training & Evaluation
 We provide training and testing scripts under ```scripts/``` for all datasets. 
