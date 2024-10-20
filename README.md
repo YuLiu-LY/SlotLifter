@@ -32,52 +32,22 @@ pip install -r requirements.txt
 In our experiments, we used NVIDIA CUDA 12.1 on Ubuntu 22.04. Similar CUDA version should also be acceptable with corresponding version control for ``torch`` and ``torchvision``.
 
 ## Dataset
-### 1. ShapeStacks, ObjectsRoom, CLEVRTex, Flowers
-Download ShapeStacks, ObjectsRoom, CLEVRTex and Flowers datasets with
-```bash
-chmod +x scripts/downloads_data.sh
-./downloads_data.sh
-```
-For ObjectsRoom dataset, you need to run ``objectsroom_process.py`` to save the tfrecords dataset as a png format.
-Remember to change the ``DATA_ROOT`` in ``downloads_data.sh`` and ``objectsroom_process.py`` to your own paths.
-### 2. PTR, Birds, Dogs, Cars
-Download PTR dataset following instructions from http://ptr.csail.mit.edu. Download CUB-Birds, Stanford Dogs, and Cars datasets from [here](https://drive.google.com/drive/folders/1zEzsKV2hOlwaNRzrEXc9oGdpTBrrVIVk), provided by authors from [DRC](https://github.com/yuPeiyu98/DRC). We use the ```birds.zip```, ```cars.tar``` and ```dogs.zip``` and then uncompress them.
+### 1. CLEVR567, Room-Chair, Room-Diverse
+CLEVR567, Room-Chair, and Room-Diverse datasets are provided by [uORF](https://github.com/KovenYu/uORF). 
 
-### 4. YCB, ScanNet, COCO
-YCB, ScanNet and COCO datasets are available from [here](https://www.dropbox.com/sh/u1p1d6hysjxqauy/AACgEh0K5ANipuIeDnmaC5mQa?dl=0), provided by authors from [UnsupObjSeg](https://github.com/vLAR-group/UnsupObjSeg).
+### 2. Room-Texture, Kitchen-Matte, Kitchen-Shiny
+Room-Texture, Kitchen-Matte, and Kitchen-Shiny datasets are provided by [uOCF]([https://github.com/KovenYu/uORF](https://github.com/Red-Fairy/uOCF-code). 
 
-### 5. Data preparation
-Please organize the data following [here](./data/README.md) before experiments.
+### 3.ScanNet
+Coming soon.
+### 4.DTU
+Coming soon.
 
-## Training
-
-To train the model from scratch we provide the following model files:
- - ``train_trans_dec.py``: transformer-based model
- - ``train_mixture_dec.py``: mixture-based model
- - ``train_base_sa.py``: original slot-attention
-We provide training scripts under ``scripts/train``. Please use the following command and change ``.sh`` file to the model you want to experiment with. Take the transformer-based decoder experiment on Birds as an exmaple, you can run the following:
-```bash
-$ cd scripts
-$ cd train
-$ chmod +x trans_dec_birds.sh
-$ ./trans_dec_birds.sh
-```
-Remember to change the paths in ``path.json`` to your own paths.
-## Reloading checkpoints & Evaluation
-
-To reload checkpoints and only run inference, we provide the following model files:
- - ``test_trans_dec.py``: transformer-based model
- - ``test_mixture_dec.py``: mixture-based model
- - ``test_base_sa.py``: original slot-attention
-
-Similarly, we provide testing scripts under ```scripts/test```. We provide transformer-based model for real-world datasets (Birds, Dogs, Cars, Flowers, YCB, ScanNet, COCO) 
-and mixture-based model for synthetic datasets(ShapeStacks, ObjectsRoom, ClevrTex, PTR). We provide all checkpoints [here](https://drive.google.com/drive/folders/10LmK9JPWsSOcezqd6eLjuzn38VdwkBUf?usp=sharing). Please use the following command and change ``.sh`` file to the model you want to experiment with:
-```bash
-$ cd scripts
-$ cd test
-$ chmod +x trans_dec_birds.sh
-$ ./trans_dec_birds.sh
-```
+## Training & Evaluation
+We provide training and testing scripts under ```scripts/``` for all datasets. 
+- ```train_uorf_data.sh``` and ```eval_uorf_data.sh```: CLEVR567, Room-Chair, Room-Diverse, Room-Texture, Kitchen-Matte, and Kitchen-Shiny dataset
+- ```train_scannet.sh``` and ```eval_scannet.sh```: Scannet dataset
+- ```train_dtu.sh``` and ```eval_dtu.sh```: DTU dataset
 
 ## Citation
 If you find our paper and/or code helpful, please consider citing:
@@ -91,4 +61,4 @@ If you find our paper and/or code helpful, please consider citing:
 ```
 
 ## Acknowledgement
-This code heavily used resources from [PanopticLifting](https://github.com/nihalsid/panoptic-lifting), [BO-QSA](https://github.com/YuLiu-LY/BO-QSA), [SLATE](https://github.com/singhgautam/slate), [OSRT](https://github.com/stelzner/osrt), [IBRNet](https://github.com/googleinterns/IBRNet). We thank the authors for open-sourcing their awesome projects.
+This code heavily used resources from [PanopticLifting](https://github.com/nihalsid/panoptic-lifting), [BO-QSA](https://github.com/YuLiu-LY/BO-QSA), [SLATE](https://github.com/singhgautam/slate), [OSRT](https://github.com/stelzner/osrt), [IBRNet](https://github.com/googleinterns/IBRNet), and [uORF](https://github.com/KovenYu/uORF). We thank the authors for open-sourcing their awesome projects.
