@@ -1,0 +1,6 @@
+defaults:
+  - cfg: scannet
+hydra:
+  output_subdir: null # Disable saving of config files. We'll do that ourselves.
+  run:
+    dir: .

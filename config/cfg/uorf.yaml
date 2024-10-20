@@ -1,0 +1,103 @@
+# Wandb
+project: "uorf"  # project name
+exp_name: test      # experiment name
+entity:             # username or teamname where you're sending runs
+group:              # experiment groupname
+job_type: debug          # train / test / debug ...
+tags:               # tags for this run
+id:                 # unique Id for this run
+notes:              # notes for this run
+watch_model: false  # true for logging the gradient of parameters
+# Training
+lpips_net: alex
+sample_mode: uniform
+bg_bound: 0.64
+force_bg: true
+force_bg_steps: 50000
+normalize: false
+benchmark: false
+deterministic: false
+render_src_view: true
+profiler:  # use profiler to check time bottleneck
+resume: null
+ckpt_path: ''
+logger:             # wandb or None
+log_path: "runs/uorf"
+chunk: 16384         # num of rays per chunk
+num_workers: 0
+seed: 42
+val_percent: 0.2     # val_batchs = val_check_percent * val_batchs if val_batchs < 1 else val_batchs
+train_percent: 1.0 
+test_percent: 1.0
+val_check_interval: 4  # do validation every val_check_interval epochs. It could be less than 1
+grad_clip: 0.5
+precision: 32          # compute precision
+instance_steps: 500000
+stop_semantic_grad: false
+decay_noise: 20000
+seg_metrics: ['ari', 'hiou', 'ari_fg']
+# Optimizer
+optimizer: lion
+lr: 5e-5
+min_lr_factor: 0.02
+weight_decay: 0.001
+warmup_steps: 10000
+max_steps: 250000
+max_epochs: 10000
+decay_steps: 50000
+# Dataset
+subset: kitchen_matte
+norm_scene: true
+select_view_func: nearby # or uniform
+load_mask: false
+train_subsample_frames: 1
+val_subsample_frames: 5
+num_src_view: 1
+batch_size: 2
+ray_batchsize: 1024
+max_instances: 20
+img_size: 
+- 128
+- 128
+n_scenes: 5
+dataset: uorf
+dataset_root: /home/yuliu/Dataset/uorf
+num_vis: 20
+max_depth: 10
+visualized_indices: null
+overfit: false
+# Model
+# Multi-view enc
+conv_enc: false
+feature_size: 64
+num_heads: 4
+conv_dim: 32
+# slot_enc
+sigma_steps: 30000
+num_slots: 5
+num_iter: 3
+slot_size: 256
+drop_path: 0.2
+num_blocks: 1
+# slot_dec
+slot_dec_dim: 64
+num_dec_blocks: 4
+slot_density: true
+# NeRF
+random_proj_ratio: 1
+random_proj: true
+random_proj_steps: 30000
+n_samples: 96
+n_samples_fine: 64
+coarse_to_fine: false
+pe_view: 10
+pe_feat: 0
+grid_init: pos_enc
+nerf_mlp_dim: 64
+scene_id: 0
+monitor: nv_ari
+suffix: ''
+hydra:
+  output_subdir: null # Disable saving of config files. We'll do that ourselves.
+  run:
+    dir: .
