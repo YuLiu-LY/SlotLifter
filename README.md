@@ -39,10 +39,24 @@ CLEVR567, Room-Chair, and Room-Diverse datasets are provided by [uORF](https://g
 Room-Texture, Kitchen-Matte, and Kitchen-Shiny datasets are provided by [uOCF](https://github.com/Red-Fairy/uOCF-code). 
 
 ### 3.ScanNet
-We provide our training data [here](). Following previous works. we use the test data provided by [NerfingMVS](https://github.com/weiyithu/NerfingMVS).
+Download the ScanNet dataset [here](http://www.scan-net.org/) and process it with the [official codes](https://github.com/ScanNet/ScanNet) to obtain images, poses, and intrinsics. 
+We use 100 scenes (from scene0001_00 to scene0101_00 except scene0079_00 which is in the test split) for training. We sample about 400 views and resize each image to a resolution of 640 × 480. 
+We organize the dataset as below:
+```
+├──scannet/
+    ├──scene0001_00/
+        ├──color_480640/
+            ├──0.jpg
+        ├──pose/
+            ├──0.txt
+        ├──intrinsic/
+            ├──intrinsic_color.txt
+```
+
+Following previous works. we use the test data provided by [NerfingMVS](https://github.com/weiyithu/NerfingMVS).
 
 ### 4.DTU
-Download the DTU dataset provided by [PixelNeRF](https://github.com/sxyu/pixel-nerf) [here]([https://roboimagedata.compute.dtu.dk/?page_id=36](https://drive.google.com/drive/folders/1PsT3uKwqHHD2bEEHkIXB99AlIjtmrEiR)).
+Download the DTU dataset provided by [PixelNeRF](https://github.com/sxyu/pixel-nerf) [here](https://drive.google.com/drive/folders/1PsT3uKwqHHD2bEEHkIXB99AlIjtmrEiR).
 
 ## Training & Evaluation
 We provide training and testing scripts under ```scripts/``` for all datasets. 
