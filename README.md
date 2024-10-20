@@ -42,13 +42,15 @@ Room-Texture, Kitchen-Matte, and Kitchen-Shiny datasets are provided by [uOCF](h
 We provide our training data [here](). Following previous works. we use the test data provided by [NerfingMVS](https://github.com/weiyithu/NerfingMVS).
 
 ### 4.DTU
-Download the DTU dataset [here](https://roboimagedata.compute.dtu.dk/?page_id=36).
+Download the DTU dataset provided by [PixelNeRF](https://github.com/sxyu/pixel-nerf) [here]([https://roboimagedata.compute.dtu.dk/?page_id=36](https://drive.google.com/drive/folders/1PsT3uKwqHHD2bEEHkIXB99AlIjtmrEiR)).
 
 ## Training & Evaluation
 We provide training and testing scripts under ```scripts/``` for all datasets. 
 - ```train_uorf_data.sh``` and ```eval_uorf_data.sh```: CLEVR567, Room-Chair, Room-Diverse, Room-Texture, Kitchen-Matte, and Kitchen-Shiny dataset
 - ```train_scannet.sh``` and ```eval_scannet.sh```: Scannet dataset
 - ```train_dtu.sh``` and ```eval_dtu.sh```: DTU dataset
+
+Download pre-trained checkpoints [here](https://drive.google.com/drive/folders/10d-Tjz22y1WjBJsFsrpjg9HjyszsDHbD?usp=sharing).
 
 ## Citation
 If you find our paper and/or code helpful, please consider citing:
