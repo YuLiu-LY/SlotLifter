@@ -34,9 +34,6 @@ class DTUDataset(torch.utils.data.Dataset):
         self.depth_range = [0.1, 5.0]
         self.split = split
         self.img_root = f'image'
-        dino_patch_size = 14
-        self.dino_feats_size = cfg.dino_feats_size
-        self.feat_map_size = cfg.dino_feats_size[0] // dino_patch_size, cfg.dino_feats_size[1] // dino_patch_size
         self.ray_batchsize = cfg.ray_batchsize
         self.subsampler = SubSampler()
         self.num_src_view = cfg.num_src_view
@@ -173,7 +170,7 @@ class DTUDataset(torch.utils.data.Dataset):
         image = torch.from_numpy(np.array(image) / 255).float() # [H, W, 3]
         if self.normalize:
             image = image * 2 - 1 # [-1, 1]
-        return image.view(-1, 3), torch.zeros(1)
+        return image.view(-1, 3)
     
     def sample_support_views(self, pose, scene_idx):
         # sample support ids
@@ -205,19 +202,17 @@ class DTUDataset(torch.utils.data.Dataset):
         pose = self.cam2scenes[scene_idx][sample_idx]
         nearest_pose_ids = self.sample_support_views(pose, scene_idx)
         support_indices = self.train_indices[scene_idx]
-        src_rgbs, src_cams, src_feats = [], [], []
+        src_rgbs, src_cams = [], [], []
         for i in nearest_pose_ids:
             id = support_indices[i]
             src_cam = self.all_cams[scene_idx][id]
-            src_rgb, src_feat = self.load_sample(id, scene_idx)
+            src_rgb = self.load_sample(id, scene_idx)
             src_rgbs.append(src_rgb)
             src_cams.append(src_cam)
-            src_feats.append(src_feat)
         src_rgbs = torch.stack(src_rgbs) # [N, H*W, 3]
         src_cams = torch.stack(src_cams) # [N, 34]
-        src_feats = torch.stack(src_feats) # [N, H1, W1, D]
 
-        rgbs, feat = self.load_sample(sample_idx, scene_idx)   
+        rgbs = self.load_sample(sample_idx, scene_idx)   
         tgt_cam = self.all_cams[scene_idx][[sample_idx]]
         tgt_rays = get_rays(tgt_cam, *self.img_size).view(-1, 6) # [HW, 3]
         H, W = self.img_size
@@ -236,176 +231,9 @@ class DTUDataset(torch.utils.data.Dataset):
         sample['cam'] = tgt_cam # [Br, 34]  or [N1, 34]
         sample['src_rgbs'] = src_rgbs.reshape(N, H, W, 3) # [N, HW，3] 
         sample['src_cams'] = src_cams # [N, 34] 2+9+16
-        sample['src_feats'] = src_feats # [N, H1, W1, D]
         sample['depth_range'] = torch.tensor(self.depth_range).float()
         return sample
 
-    
-class VisDTUDataset(torch.utils.data.Dataset):
-    def __init__(
-        self,
-        cfg,
-        split="train",
-    ):
-        """
-        :param path dataset root path, contains metadata.yml
-        :param split train | val | test
-        :param list_prefix prefix for split lists: <list_prefix>[train, val, test].lst
-        """
-        super().__init__()
-        self.data_root = cfg.dataset_root
-        self.normalize = cfg.normalize
-        self.depth_range = [0.1, 5.0]
-        self.img_root = f'image'
-        self.num_src_view = cfg.num_src_view
-
-        self.scene_id = cfg.scene_id
-        self.img_size = cfg.img_size[0], cfg.img_size[1]
-        # sub_format == "dtu":
-        self._coord_trans_world = torch.tensor(
-            [[1, 0, 0, 0], [0, -1, 0, 0], [0, 0, -1, 0], [0, 0, 0, 1]],
-            dtype=torch.float32,
-        )
-        self._coord_trans_cam = torch.tensor(
-            [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]],
-            dtype=torch.float32,
-        )
-        self.num_vis = cfg.num_vis
-        self.setup_data()
-    
-    def __len__(self):
-        return self.num_vis
-
-    def setup_data(self):
-        path =  "new_val.lst"
-        scene_list_path = os.path.join(self.data_root, path)
-        scenes = []
-        with open(scene_list_path, "r") as f:
-            for line in f:
-                scenes.append(line.strip())
-
-        scenes = [os.path.join(self.data_root, scene) for scene in scenes]
-        self.scene = scenes[self.scene_id]
-        self.setup_one_scene(self.scene)
-
-    def setup_one_scene(self, scene):
-        all_frames = sorted(glob(os.path.join(scene, self.img_root, "*")))
-        all_frames = [x.split("/")[-1].split(".")[0] for x in all_frames]
-        self.all_frame = all_frames
-
-        fx, fy, cx, cy = 0.0, 0.0, 0.0, 0.0
-        cam2scene = []
-        dims = []
-        img_w, img_h = Image.open(os.path.join(scene, self.img_root, f'{all_frames[0]}.png')).size
-        for i in range(len(all_frames)):
-            cams = np.load(os.path.join(self.data_root, scene, "cameras.npz"))
-
-            # Decompose projection matrix
-            P = cams["world_mat_" + str(i)]
-            P = P[:3]
-            K, R, t = cv2.decomposeProjectionMatrix(P)[:3]
-            K = K / K[2, 2]
-
-            pose = np.eye(4, dtype=np.float32)
-            pose[:3, :3] = R.transpose()
-            pose[:3, 3] = (t[:3] / t[3])[:, 0]
-
-            scale_mtx = cams.get("scale_mat_" + str(i))
-            if scale_mtx is not None:
-                norm_trans = scale_mtx[:3, 3:]
-                norm_scale = np.diagonal(scale_mtx[:3, :3])[..., None]
-                pose[:3, 3:] -= norm_trans
-                pose[:3, 3:] /= norm_scale
-
-            fx += torch.tensor(K[0, 0])
-            fy += torch.tensor(K[1, 1])
-            cx += torch.tensor(K[0, 2])
-            cy += torch.tensor(K[1, 2])
-
-            pose = torch.tensor(pose, dtype=torch.float32)
-            cam2scene.append(pose)
-            dims.append([img_h, img_w])
-        fx /= len(all_frames)
-        fy /= len(all_frames)
-        cx /= len(all_frames)
-        cy /= len(all_frames)
-        intrinsic = torch.tensor([
-            [fx, 0, cx, 0],
-            [0, fy, cy, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
-        ])
-        cam2scene = torch.stack(cam2scene).float()
-        intrinsics = intrinsic.unsqueeze(0).expand(len(cam2scene), -1, -1).float()
-        cams = torch.cat([
-            torch.Tensor(self.img_size).expand(len(cam2scene), -1),
-            intrinsics.flatten(1, 2),
-            cam2scene.flatten(1, 2)], dim=1)
-        self.all_cams = cams
-        self.cam2scenes = cam2scene
-        indices = list(range(len(all_frames)))
-        self.indices = indices
-
-
-        N_poses = len(cam2scene)
-        tgt_cam2scene = cam2scene
-        tgt_cams = [torch.cat([torch.Tensor(self.img_size), intrinsics.flatten(),
-                               tgt_cam2scene[i].flatten()])[None] for i in range(self.num_vis)]   
-        tgt_cams = torch.cat(tgt_cams, dim=0) # [N, 34]
-        tgt_rays = get_rays(tgt_cams, *self.img_size) # [N, HW, 6]
-        self.tgt_poses = tgt_cam2scene
-        self.tgt_cams = tgt_cams
-        self.tgt_rays = tgt_rays
-
-    def load_sample(self, sample_index):
-        image = Image.open(Path(self.scene) / f"{self.img_root}" / f"{self.all_frame[sample_index]}.png")
-        image = torch.from_numpy(np.array(image) / 255).float() # [H, W, 3]
-        if self.normalize:
-            image = image * 2 - 1 # [-1, 1]
-        return image.view(-1, 3), torch.zeros(1)
-    
-    def sample_support_views(self, pose):
-        nearest_pose_ids = get_nearest_pose_ids(pose.numpy(),
-                                                    self.cam2scenes.numpy(),
-                                                    self.num_src_view,
-                                                    tar_id=-1,
-                                                    angular_dist_method='mix')
-        nearest_pose_ids = torch.from_numpy(nearest_pose_ids).long()
-        return nearest_pose_ids
-
-    def __getitem__(self, idx):
-        sample = {}
-
-        # sample support ids
-        pose = self.tgt_poses[idx]
-
-        nearest_pose_ids = self.sample_support_views(pose)
-        src_rgbs, src_cams, src_feats = [], [], []
-        for id in nearest_pose_ids:
-            src_cam = self.all_cams[id]
-            src_rgb, src_feat = self.load_sample(id)
-            src_rgbs.append(src_rgb)
-            src_cams.append(src_cam)
-            src_feats.append(src_feat)
-        src_rgbs = torch.stack(src_rgbs) # [N, H*W, 3]
-        src_cams = torch.stack(src_cams) # [N, 34]
-        src_feats = torch.stack(src_feats) # [N, H1, W1, D]
-
-        H, W = self.img_size
-        N = self.num_src_view
-        sample['rays'] = self.tgt_rays # [Br, 3] or [N1, HW, 3]
-        sample['cam'] = self.tgt_cams # [Br, 34]  or [N1, 34]
-        sample['src_rgbs'] = src_rgbs.reshape(N, H, W, 3) # [N, HW，3] 
-        sample['src_cams'] = src_cams # [N, 34] 2+9+16
-        sample['src_feats'] = src_feats # [N, H1, W1, D]
-        sample['depth_range'] = torch.tensor(self.depth_range).float()
-        return sample
-    
-
-def rot_matrix_angular_dist(R1, R2):
-    assert R1.shape[-1] == 3 and R2.shape[-1] == 3 and R1.shape[-2] == 3 and R2.shape[-2] == 3
-    return np.arccos(np.clip((np.trace(np.matmul(R2.transpose(0, 2, 1), R1), axis1=1, axis2=2) - 1) / 2.,
-                             a_min=-1 + 1e-6, a_max=1 - 1e-6))
 
 import hydra
 from torch.utils.data import DataLoader
@@ -415,9 +243,9 @@ def main(config):
     config.num_workers = 0
     config.lambda_depth = 0.1
 
-    train_set = VisDTUDataset(config, "train")
-    val_set = VisDTUDataset(config, "val")
-    test_set = VisDTUDataset(config, "test")
+    train_set = DTUDataset(config, "train")
+    val_set = DTUDataset(config, "val")
+    test_set = DTUDataset(config, "test")
 
     train_loader = DataLoader(train_set, batch_size=config.batch_size, num_workers=config.num_workers)
     # val_loader = DataLoader(val_set, batch_size=1, shuffle=False, num_workers=config.num_workers)

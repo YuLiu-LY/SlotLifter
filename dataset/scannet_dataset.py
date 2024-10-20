@@ -244,7 +244,6 @@ from torch.utils.data import DataLoader
 @hydra.main(config_path='../config/cfg', config_name='scannet', version_base='1.2')
 def main(config):
     config.img_size = [480, 640]
-    config.dino_feats_size = [210, 280]
     config.num_workers = 0
     train_set = ScannetDataset(config, "train")
     test_set = ScannetDataset(config, "test")
