@@ -19,7 +19,6 @@ python trainer/train.py \
     cfg.test_percent=1.0 \
     cfg.ckpt_path=checkpoints/${subset}/seed1.ckpt \
     cfg.num_slots=5 \
-    cfg.val_subsample_frames=1 \
     cfg.seed=${seed} \
     cfg.logger=wandb \
 

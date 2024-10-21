@@ -56,7 +56,6 @@ img_size:
 - 300
 - 400
 train_subsample_frames: 1
-val_subsample_frames: 5
 num_src_view: 4
 batch_size: 2
 ray_batchsize: 1024
@@ -77,7 +76,7 @@ conv_enc: false
 conv_dim: 32
 # slot_enc
 sigma_steps: 30000
-num_slots: 2
+num_slots: 8
 num_iter: 3
 slot_size: 256
 drop_path: 0.2

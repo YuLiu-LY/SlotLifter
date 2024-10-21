@@ -202,7 +202,7 @@ class DTUDataset(torch.utils.data.Dataset):
         pose = self.cam2scenes[scene_idx][sample_idx]
         nearest_pose_ids = self.sample_support_views(pose, scene_idx)
         support_indices = self.train_indices[scene_idx]
-        src_rgbs, src_cams = [], [], []
+        src_rgbs, src_cams = [], []
         for i in nearest_pose_ids:
             id = support_indices[i]
             src_cam = self.all_cams[scene_idx][id]

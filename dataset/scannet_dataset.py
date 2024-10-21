@@ -37,7 +37,6 @@ class ScannetDataset(Dataset):
         self.img_root = f'color_480640'
 
         self.train_subsample_frames = cfg.train_subsample_frames
-        self.val_subsample_frames = cfg.val_subsample_frames
         self.num_src_view = cfg.num_src_view
         self.world2scene = np.eye(4, dtype=np.float32)
         self.depth_range = [0.1, 10]
@@ -104,7 +103,6 @@ class ScannetDataset(Dataset):
             sample_indices = list(range(len(scene_frames)))
             val_indices = sample_indices[::8]
             train_indices = [x for x in sample_indices if x not in val_indices]
-            val_indices = val_indices[::self.val_subsample_frames]
         else: 
             train_frames = np.loadtxt(Path(scene_dir) / "train.txt", dtype=str)
             val_frames = np.loadtxt(Path(scene_dir) / "test.txt", dtype=str)

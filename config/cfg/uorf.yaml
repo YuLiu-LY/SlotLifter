@@ -51,7 +51,6 @@ norm_scene: true
 select_view_func: nearby # or uniform
 load_mask: false
 train_subsample_frames: 1
-val_subsample_frames: 5
 num_src_view: 1
 batch_size: 2
 ray_batchsize: 1024

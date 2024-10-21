@@ -57,7 +57,6 @@ img_size:
 - 480
 - 640
 train_subsample_frames: 1
-val_subsample_frames: 5
 num_src_view: 4
 batch_size: 2
 ray_batchsize: 1024

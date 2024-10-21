@@ -375,6 +375,7 @@ class TensoRFTrainer(pl.LightningModule):
         if self.cfg.dataset == 'dtu':
             recon_metrics = self.recon_metrics(output_rgb.view(shape).permute(0, 3, 1, 2), rgbs.view(shape).permute(0, 3, 1, 2))
             out_put.update(recon_metrics)
+            seg_metrics = {}
         else:
             rs_instances = batch['instances'].view(N, -1) # [N, H*W]
             if self.cfg.dataset != 'scannet':
