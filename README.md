@@ -53,7 +53,7 @@ We organize the dataset as below:
             ├──intrinsic_color.txt
 ```
 
-Following previous works. we use the test data provided by [NerfingMVS](https://github.com/weiyithu/NerfingMVS).
+Following previous works, we use the test data provided by [NerfingMVS](https://github.com/weiyithu/NerfingMVS).
 
 ### 4.DTU
 Download the DTU dataset provided by [PixelNeRF](https://github.com/sxyu/pixel-nerf) [here](https://drive.google.com/drive/folders/1PsT3uKwqHHD2bEEHkIXB99AlIjtmrEiR).
